@@ -1,5 +1,6 @@
 package com.example.customprogressbar.Views
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -28,18 +29,8 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
     private var brushSize = DEFAULT_BRUSH_SIZE
     private var borderBrushSize = DEFAULT_BORDER_BRUSH_SIZE
 
-    var value = DEFAULT_VALUE
-        set(newValue){
-            field = if (newValue in 0f..1f) {
-                newValue
-            } else if (newValue < 0) {
-                0f
-            } else {
-                1f
-            }
-            invalidate()
-        }
-
+    private var value = DEFAULT_VALUE
+    private var targetValue = DEFAULT_VALUE
     init {
         paint.isAntiAlias = true
         setupAttributes(attrs)
@@ -58,7 +49,7 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
         paint.color = backgroundColor
         paint.strokeWidth = brushSize
         paint.style = Paint.Style.FILL
-        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
     }
 
     private fun drawFill(canvas: Canvas) {
@@ -69,9 +60,9 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
 
         canvas.drawRect(
             0f,
-            canvas.height.toFloat()*(1-value),
-            canvas.width.toFloat(),
-            canvas.height.toFloat(),
+            height.toFloat()*(1-value),
+            width.toFloat(),
+            height.toFloat(),
             paint
         )
     }
@@ -80,7 +71,30 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
         paint.color = borderColor
         paint.strokeWidth = borderBrushSize
         paint.style = Paint.Style.STROKE
-        canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), paint)
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+    }
+
+    fun setProgress(newValue: Float) {
+        targetValue = if (newValue in 0f..1f) {
+            newValue
+        } else if (newValue < 0) {
+            0f
+        } else {
+            1f
+        }
+        startAnimation()
+    }
+
+    private fun startAnimation() {
+        val animation = ValueAnimator.ofFloat(value, targetValue)
+        animation.duration = 1000
+
+        animation.addUpdateListener { valueAnimator ->
+            value = valueAnimator.animatedValue as Float
+            invalidate()
+        }
+
+        animation.start()
     }
 
     private fun setupAttributes(attrs: AttributeSet?) {

@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
             } catch(_: NumberFormatException) {
                 0f
             }
-            progressBarCustomView.value = value
+            progressBarCustomView.setProgress(value)
             progressEditText.text = null
         }
     }
