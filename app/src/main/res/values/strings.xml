@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">CustomProgressBar</string>
+    <string name="app_name" translatable="false">CustomProgressBar</string>
+    <string name="button_text">Submit</string>
+    <string name="edit_text_hint">Value</string>
 </resources>

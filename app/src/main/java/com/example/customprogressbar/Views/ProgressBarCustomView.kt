@@ -37,6 +37,7 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
             } else {
                 1f
             }
+            invalidate()
         }
 
     init {
