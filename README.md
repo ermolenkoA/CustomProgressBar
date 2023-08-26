@@ -15,7 +15,7 @@ ___
 - `borderWidth` - width of the progress bar border
   - `10f` by default
 - `tactTime` - time that takes to animate one percent of the progress bar
-  - `30` by default
+  - `25` by default
  
 :exclamation: **To change progress bar value, use `setProgress()` method**
 
