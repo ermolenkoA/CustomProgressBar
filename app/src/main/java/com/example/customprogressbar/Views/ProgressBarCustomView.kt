@@ -5,12 +5,18 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.PixelFormat
-import android.graphics.RectF
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.animation.LinearInterpolator
 import com.example.customprogressbar.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context, attrs) {
 
@@ -20,19 +26,22 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
         private const val DEFAULT_VALUE = 0.5f
         private const val DEFAULT_BRUSH_SIZE = 3f
         private const val DEFAULT_BORDER_BRUSH_SIZE = 10f
+        private const val DEFAULT_TACT_TIME = 25
     }
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var backgroundColor = DEFAULT_BACKGROUND_COLOR
     private var borderColor = DEFAULT_BORDER_COLOR
-
     private var brushSize = DEFAULT_BRUSH_SIZE
     private var borderBrushSize = DEFAULT_BORDER_BRUSH_SIZE
+    private var tactTime = DEFAULT_TACT_TIME
 
     private var value = DEFAULT_VALUE
     private var targetValue = DEFAULT_VALUE
+    private var animation = ValueAnimator()
     init {
         paint.isAntiAlias = true
+        animation.interpolator = LinearInterpolator()
         setupAttributes(attrs)
     }
 
@@ -86,13 +95,12 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
     }
 
     private fun startAnimation() {
-        val animation = ValueAnimator.ofFloat(value, targetValue)
-        animation.duration = 1000
-
+        animation.setFloatValues(value, targetValue)
+        animation.duration = kotlin.math.abs(((targetValue - value) * 100).toLong()) * tactTime
         animation.addUpdateListener { valueAnimator ->
-            value = valueAnimator.animatedValue as Float
-            invalidate()
-        }
+                value = valueAnimator.animatedValue as Float
+                invalidate()
+            }
 
         animation.start()
     }
@@ -115,6 +123,10 @@ class ProgressBarCustomView(context: Context, attrs: AttributeSet): View(context
         value = typedArray.getFloat(
             R.styleable.ProgressBarCustomView_value,
             DEFAULT_VALUE
+        )
+        tactTime = typedArray.getInt(
+            R.styleable.ProgressBarCustomView_tactTime,
+            DEFAULT_TACT_TIME
         )
         typedArray.recycle()
     }
